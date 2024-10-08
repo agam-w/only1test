@@ -13,7 +13,6 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as LogoutImport } from './routes/logout'
 import { Route as LoginImport } from './routes/login'
-import { Route as CounterImport } from './routes/counter'
 import { Route as AppImport } from './routes/_app'
 import { Route as AppIndexImport } from './routes/_app/index'
 
@@ -26,11 +25,6 @@ const LogoutRoute = LogoutImport.update({
 
 const LoginRoute = LoginImport.update({
   path: '/login',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const CounterRoute = CounterImport.update({
-  path: '/counter',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -53,13 +47,6 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: ''
       preLoaderRoute: typeof AppImport
-      parentRoute: typeof rootRoute
-    }
-    '/counter': {
-      id: '/counter'
-      path: '/counter'
-      fullPath: '/counter'
-      preLoaderRoute: typeof CounterImport
       parentRoute: typeof rootRoute
     }
     '/login': {
@@ -100,14 +87,12 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 export interface FileRoutesByFullPath {
   '': typeof AppRouteWithChildren
-  '/counter': typeof CounterRoute
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
   '/': typeof AppIndexRoute
 }
 
 export interface FileRoutesByTo {
-  '/counter': typeof CounterRoute
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
   '/': typeof AppIndexRoute
@@ -116,7 +101,6 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/_app': typeof AppRouteWithChildren
-  '/counter': typeof CounterRoute
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
   '/_app/': typeof AppIndexRoute
@@ -124,23 +108,21 @@ export interface FileRoutesById {
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '' | '/counter' | '/login' | '/logout' | '/'
+  fullPaths: '' | '/login' | '/logout' | '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/counter' | '/login' | '/logout' | '/'
-  id: '__root__' | '/_app' | '/counter' | '/login' | '/logout' | '/_app/'
+  to: '/login' | '/logout' | '/'
+  id: '__root__' | '/_app' | '/login' | '/logout' | '/_app/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
-  CounterRoute: typeof CounterRoute
   LoginRoute: typeof LoginRoute
   LogoutRoute: typeof LogoutRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
-  CounterRoute: CounterRoute,
   LoginRoute: LoginRoute,
   LogoutRoute: LogoutRoute,
 }
@@ -158,7 +140,6 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/_app",
-        "/counter",
         "/login",
         "/logout"
       ]
@@ -168,9 +149,6 @@ export const routeTree = rootRoute
       "children": [
         "/_app/"
       ]
-    },
-    "/counter": {
-      "filePath": "counter.tsx"
     },
     "/login": {
       "filePath": "login.tsx"

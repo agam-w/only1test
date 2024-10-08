@@ -1,5 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/")({
-  component: () => <div>Hello authenticated user!</div>,
+  component: AppHome,
 });
+
+function AppHome() {
+  const { user } = Route.useRouteContext();
+
+  return (
+    <div>
+      <div className="container py-2">
+        <p>Hello {user?.username}!</p>
+      </div>
+    </div>
+  );
+}
