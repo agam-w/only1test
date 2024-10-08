@@ -1,8 +1,30 @@
 import { createRootRoute } from "@tanstack/react-router";
 import { Outlet, ScrollRestoration } from "@tanstack/react-router";
-import { Body, Head, Html, Meta, Scripts } from "@tanstack/start";
+import {
+  Body,
+  createServerFn,
+  Head,
+  Html,
+  Meta,
+  Scripts,
+} from "@tanstack/start";
 import * as React from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import appCss from "~/styles/app.css?url";
+import { useAppSession } from "~/utils/session";
+
+const fetchUser = createServerFn("GET", async () => {
+  // We need to auth on the server so we have access to secure cookies
+  const session = await useAppSession();
+
+  if (!session.data.username) {
+    return null;
+  }
+
+  return {
+    username: session.data.username,
+  };
+});
 
 export const Route = createRootRoute({
   meta: () => [
@@ -23,18 +45,30 @@ export const Route = createRootRoute({
       href: appCss,
     },
   ],
+  beforeLoad: async () => {
+    const user = await fetchUser();
+    return {
+      user,
+    };
+  },
   component: RootComponent,
 });
+
+const queryClient = new QueryClient();
 
 function RootComponent() {
   return (
     <RootDocument>
-      <Outlet />
+      <QueryClientProvider client={queryClient}>
+        <Outlet />
+      </QueryClientProvider>
     </RootDocument>
   );
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const { user } = Route.useRouteContext();
+
   return (
     <Html>
       <Head>

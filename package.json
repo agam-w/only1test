@@ -12,6 +12,7 @@
   "author": "agam-w",
   "license": "MIT",
   "dependencies": {
+    "@tanstack/react-query": "^5.59.0",
     "@tanstack/react-router": "^1.63.2",
     "@tanstack/start": "^1.63.3",
     "@vitejs/plugin-react": "^4.3.2",
