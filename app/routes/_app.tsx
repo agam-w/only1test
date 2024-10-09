@@ -17,7 +17,7 @@ function App() {
   return (
     <div>
       <div className="bg-gray-200">
-        <div className="container flex justify-between items-center py-2">
+        <div className="container flex justify-between items-center py-2 px-4">
           <div>
             <a href="/" className="font-medium">
               Home

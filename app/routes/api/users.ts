@@ -22,6 +22,12 @@ export const Route = createAPIFileRoute("/api/users")({
     // TODO: implement search with q params
     const users = await findUsers({}, limit, offset);
 
-    return json({ data: users, page, per_page, total: users.length });
+    // omit password from response
+    const data = users.map((user) => ({
+      ...user,
+      password: undefined,
+    }));
+
+    return json({ data, page, per_page, total: users.length });
   },
 });
