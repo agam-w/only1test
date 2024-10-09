@@ -11,7 +11,7 @@ export async function findUserById(id: number) {
     .executeTakeFirst();
 }
 
-export async function findUsers(criteria: Partial<User>) {
+function findUserQuery(criteria: Partial<User>) {
   let query = db.selectFrom(table);
 
   if (criteria.id) {
@@ -30,6 +30,16 @@ export async function findUsers(criteria: Partial<User>) {
     query = query.where("verified", "=", criteria.verified);
   }
 
+  return query;
+}
+
+export async function findUser(criteria: Partial<User>) {
+  let query = findUserQuery(criteria);
+  return await query.selectAll().executeTakeFirst();
+}
+
+export async function findUsers(criteria: Partial<User>) {
+  let query = findUserQuery(criteria);
   return await query.selectAll().execute();
 }
 

@@ -11,6 +11,7 @@ function AppHome() {
     <div>
       <div className="container py-2">
         <p>Hello {user?.username}!</p>
+        <p>{user?.email}</p>
       </div>
     </div>
   );

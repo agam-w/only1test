@@ -1,5 +1,5 @@
 import type { Kysely } from "kysely";
-import { createUser, findUsers } from "~/repositories/user";
+import { createUser, findUser, findUsers } from "~/repositories/user";
 import { NewUser } from "../types";
 import { hashPassword } from "~/utils/hash";
 
@@ -29,8 +29,7 @@ export async function seed(db: Kysely<any>): Promise<void> {
   ];
 
   for (const user of users) {
-    const searchUsers = await findUsers({ username: user.username });
-    const userExists = searchUsers.length > 0;
+    const userExists = await findUser({ username: user.username });
     if (!userExists) {
       await createUser(user);
     }

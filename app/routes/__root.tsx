@@ -22,7 +22,9 @@ const fetchUser = createServerFn("GET", async () => {
   }
 
   return {
+    id: session.data.id,
     username: session.data.username,
+    email: session.data.email,
   };
 });
 

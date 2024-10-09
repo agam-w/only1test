@@ -1,7 +1,9 @@
 import { useSession } from "vinxi/http";
 
 type SessionUser = {
+  id: number;
   username: string;
+  email: string;
 };
 
 export function useAppSession() {
