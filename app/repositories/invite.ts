@@ -12,7 +12,10 @@ export async function findInviteById(id: number) {
 }
 
 function findInviteQuery(criteria: Partial<Invite>) {
-  let query = db.selectFrom(table);
+  let query = db
+    .selectFrom(table)
+    .innerJoin("user as invitee", "invitee.id", "invite.invitee_id")
+    .innerJoin("user as inviter", "inviter.id", "invite.inviter_id");
 
   if (criteria.id) {
     query = query.where("id", "=", criteria.id); // Kysely is immutable, you must re-assign!
@@ -43,7 +46,21 @@ export async function findInvites(
     query = query.offset(offset);
   }
 
-  return await query.selectAll().execute();
+  return await query
+    .select([
+      "invite.id",
+      "invite.invitee_id",
+      "invite.inviter_id",
+      "invite.status",
+      "invite.created_at",
+      "invitee.name as invitee_name",
+      "invitee.username as invitee_username",
+      "invitee.email as invitee_email",
+      "inviter.name as inviter_name",
+      "inviter.username as inviter_username",
+      "inviter.email as inviter_email",
+    ])
+    .execute();
 }
 
 export async function createInvite(invite: NewInvite) {

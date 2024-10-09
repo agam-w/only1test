@@ -23,12 +23,12 @@ function findPermissionQuery(criteria: Partial<Permission>) {
   return query;
 }
 
-export async function findInvite(criteria: Partial<Permission>) {
+export async function findPermission(criteria: Partial<Permission>) {
   let query = findPermissionQuery(criteria);
   return await query.selectAll().executeTakeFirst();
 }
 
-export async function findInvites(
+export async function findPermissions(
   criteria: Partial<Permission>,
   limit?: number,
   offset?: number,

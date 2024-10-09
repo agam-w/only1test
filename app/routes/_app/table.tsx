@@ -74,8 +74,8 @@ function AppHome() {
 
             <Table
               aria-label="Invites-Given"
-              selectionMode="multiple"
-              selectionBehavior="replace"
+              // selectionMode="multiple"
+              // selectionBehavior="replace"
             >
               <TableHeader columns={columns}>
                 {(column) => (
