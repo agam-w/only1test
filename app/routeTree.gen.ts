@@ -15,6 +15,7 @@ import { Route as LogoutImport } from './routes/logout'
 import { Route as LoginImport } from './routes/login'
 import { Route as AppImport } from './routes/_app'
 import { Route as AppIndexImport } from './routes/_app/index'
+import { Route as AppTableImport } from './routes/_app/table'
 
 // Create/Update Routes
 
@@ -35,6 +36,11 @@ const AppRoute = AppImport.update({
 
 const AppIndexRoute = AppIndexImport.update({
   path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppTableRoute = AppTableImport.update({
+  path: '/table',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -63,6 +69,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LogoutImport
       parentRoute: typeof rootRoute
     }
+    '/_app/table': {
+      id: '/_app/table'
+      path: '/table'
+      fullPath: '/table'
+      preLoaderRoute: typeof AppTableImport
+      parentRoute: typeof AppImport
+    }
     '/_app/': {
       id: '/_app/'
       path: '/'
@@ -76,10 +89,12 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface AppRouteChildren {
+  AppTableRoute: typeof AppTableRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppTableRoute: AppTableRoute,
   AppIndexRoute: AppIndexRoute,
 }
 
@@ -89,12 +104,14 @@ export interface FileRoutesByFullPath {
   '': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
+  '/table': typeof AppTableRoute
   '/': typeof AppIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
+  '/table': typeof AppTableRoute
   '/': typeof AppIndexRoute
 }
 
@@ -103,15 +120,16 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
+  '/_app/table': typeof AppTableRoute
   '/_app/': typeof AppIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '' | '/login' | '/logout' | '/'
+  fullPaths: '' | '/login' | '/logout' | '/table' | '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/logout' | '/'
-  id: '__root__' | '/_app' | '/login' | '/logout' | '/_app/'
+  to: '/login' | '/logout' | '/table' | '/'
+  id: '__root__' | '/_app' | '/login' | '/logout' | '/_app/table' | '/_app/'
   fileRoutesById: FileRoutesById
 }
 
@@ -147,6 +165,7 @@ export const routeTree = rootRoute
     "/_app": {
       "filePath": "_app.tsx",
       "children": [
+        "/_app/table",
         "/_app/"
       ]
     },
@@ -155,6 +174,10 @@ export const routeTree = rootRoute
     },
     "/logout": {
       "filePath": "logout.tsx"
+    },
+    "/_app/table": {
+      "filePath": "_app/table.tsx",
+      "parent": "/_app"
     },
     "/_app/": {
       "filePath": "_app/index.tsx",
