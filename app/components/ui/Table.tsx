@@ -1,5 +1,5 @@
 import { ArrowUp } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Cell as AriaCell,
   Column as AriaColumn,
@@ -144,4 +144,20 @@ const cellStyles = tv({
 
 export function Cell(props: CellProps) {
   return <AriaCell {...props} className={cellStyles} />;
+}
+
+export function ExpandCell(props: CellProps & { isExpanded: boolean }) {
+  const [expand, setExpand] = useState(false);
+
+  useEffect(() => {
+    console.log("expand", props.isExpanded);
+  }, [props]);
+
+  return (
+    <AriaCell {...props} className={cellStyles}>
+      <div onClick={() => setExpand(!expand)}>
+        {!props.isExpanded ? <>{props.children}</> : <div>expanded</div>}
+      </div>
+    </AriaCell>
+  );
 }

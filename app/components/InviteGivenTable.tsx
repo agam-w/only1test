@@ -1,8 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/start";
+import { useEffect, useMemo, useState } from "react";
 import { TableBody } from "react-aria-components";
 import { Button } from "~/components/ui/Button";
-import { Cell, Column, Row, Table, TableHeader } from "~/components/ui/Table";
+import {
+  Cell,
+  Column,
+  ExpandCell,
+  Row,
+  Table,
+  TableHeader,
+} from "~/components/ui/Table";
 import { NewInvite, NewPermission } from "~/database/types";
 import { deleteInviteFn, getInvitesGivenFn } from "~/routes/_app";
 
@@ -36,6 +44,21 @@ export default function InviteGivenTable() {
     },
   });
 
+  const [expandedRows, setExpandedRows] = useState<{ [key: number]: boolean }>(
+    {},
+  );
+
+  const toggleRow = (rowIndex: number) => {
+    setExpandedRows((prev) => ({
+      ...prev,
+      [rowIndex]: !prev[rowIndex],
+    }));
+  };
+
+  useEffect(() => {
+    console.log(expandedRows);
+  }, [expandedRows]);
+
   const columns: Column[] = [
     { name: "Name", id: "name", isRowHeader: true, key: "invitee_name" },
     { name: "Date", id: "date", key: "created_at" },
@@ -61,13 +84,15 @@ export default function InviteGivenTable() {
     },
   ];
 
-  const rows = invites.data?.data as InviteWithPermissions[];
+  const rows = useMemo(() => {
+    return invites.data?.data as InviteWithPermissions[];
+  }, [invites, expandedRows]);
 
   return (
     <Table
       aria-label="Invites-Given"
-      selectionMode="multiple"
-      selectionBehavior="replace"
+      // selectionMode="multiple"
+      // selectionBehavior="replace"
     >
       <TableHeader columns={columns}>
         {(column) => (
@@ -75,26 +100,43 @@ export default function InviteGivenTable() {
         )}
       </TableHeader>
       <TableBody items={rows}>
-        {(item) => (
-          <Row
-            key={item.id}
-            id={item.id}
-            columns={columns}
-            onAction={() => {
-              console.log("click", item);
-            }}
-          >
-            {(column) => (
-              <Cell>
-                {column.render
-                  ? column.render(item)
-                  : column.key
-                    ? item[column.key]
-                    : ""}
-              </Cell>
-            )}
-          </Row>
-        )}
+        {(item) => {
+          return (
+            <Row
+              key={item.id}
+              id={item.id}
+              columns={columns}
+              onAction={() => {
+                toggleRow(item.id!);
+                console.log(item.id);
+              }}
+            >
+              {(column) => (
+                <Cell>
+                  {!expandedRows[item.id!] ? (
+                    <>
+                      {column.render
+                        ? column.render(item)
+                        : column.key
+                          ? item[column.key]
+                          : ""}
+                    </>
+                  ) : (
+                    <div>
+                      'detail info'
+                      <br />
+                      'detail info'
+                      <br />
+                      'detail info'
+                      <br />
+                      'detail info'
+                    </div>
+                  )}
+                </Cell>
+              )}
+            </Row>
+          );
+        }}
       </TableBody>
     </Table>
   );
