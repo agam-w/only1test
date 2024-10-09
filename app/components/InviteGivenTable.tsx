@@ -13,6 +13,7 @@ import {
 } from "~/components/ui/Table";
 import { NewInvite, NewPermission } from "~/database/types";
 import { deleteInviteFn, getInvitesGivenFn } from "~/routes/_app";
+import PermissionSwitches from "./PermissionSwitches";
 
 type InviteWithPermissions = NewInvite & {
   permissions: NewPermission[];
@@ -65,7 +66,11 @@ export default function InviteGivenTable() {
     {
       name: "Permission",
       id: "permission",
-      render: (item) => <p>{item?.permissions.join(" ")}</p>,
+      render: (item) => (
+        <PermissionSwitches
+          selectedKeys={item?.permissions.map((p) => p.permission) || []}
+        />
+      ),
     },
     { name: "Status", id: "status", key: "status" },
     {
