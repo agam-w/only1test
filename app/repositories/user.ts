@@ -38,8 +38,21 @@ export async function findUser(criteria: Partial<User>) {
   return await query.selectAll().executeTakeFirst();
 }
 
-export async function findUsers(criteria: Partial<User>) {
+export async function findUsers(
+  criteria: Partial<User>,
+  limit?: number,
+  offset?: number,
+) {
   let query = findUserQuery(criteria);
+
+  if (limit) {
+    query = query.limit(limit);
+  }
+
+  if (offset) {
+    query = query.offset(offset);
+  }
+
   return await query.selectAll().execute();
 }
 
