@@ -26,8 +26,10 @@ npm install
 
 - Create postgre database, set the `DATABASE_URL=` in `.env` file.
 - Using kysely-ctl tool. Run `npx kysely -h` to show help.
-- Run `npx kysely migrate:list` to list all available database migrations.
+- Run `npx kysely migrate list` to list all available database migrations.
 - Run `npx kysely migrate up` to migrates the database.
+- Run `npx kysely seed list` to list all available database seeds.
+- Run `npx kysely seed run` to run all available database seeds.
 
 ### Run dev server
 

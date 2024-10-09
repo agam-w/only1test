@@ -6,7 +6,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn("id", "serial", (col) => col.primaryKey())
     .addColumn("username", "varchar", (col) => col.notNull())
     .addColumn("email", "varchar", (col) => col.notNull())
-    .addColumn("password", "varchar", (col) => col.notNull())
+    .addColumn("password", "text", (col) => col.notNull())
     .addColumn("name", "text")
     .addColumn("verified", "boolean", (col) => col.notNull().defaultTo(false))
     .addColumn("created_at", "timestamp", (col) =>
