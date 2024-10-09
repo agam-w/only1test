@@ -70,3 +70,7 @@ export async function createInvite(invite: NewInvite) {
     .returningAll()
     .executeTakeFirstOrThrow();
 }
+
+export async function deleteInvite(id: number) {
+  return await db.deleteFrom(table).where("id", "=", id).execute();
+}

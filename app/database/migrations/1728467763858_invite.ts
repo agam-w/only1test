@@ -13,7 +13,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .execute();
 
   await db.schema
-    .createTable("pemission")
+    .createTable("permission")
     .addColumn("id", "serial", (col) => col.primaryKey())
     .addColumn("invite_id", "serial", (col) => col.notNull())
     .addColumn("user_id", "serial", (col) => col.notNull())
@@ -25,6 +25,6 @@ export async function up(db: Kysely<any>): Promise<void> {
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await db.schema.dropTable("pemission").execute();
+  await db.schema.dropTable("permission").execute();
   await db.schema.dropTable("invite").execute();
 }

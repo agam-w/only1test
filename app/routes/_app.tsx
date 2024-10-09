@@ -1,6 +1,12 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/start";
-import { createInvite, findInvites } from "~/repositories/invite";
+import {
+  createInvite,
+  deleteInvite,
+  findInviteById,
+  findInvites,
+} from "~/repositories/invite";
+import { findPermissions } from "~/repositories/permission";
 import { useAppSession } from "~/utils/session";
 
 export const inviteUserFn = createServerFn(
@@ -38,12 +44,42 @@ export const getInvitesGivenFn = createServerFn(
       offset,
     );
 
+    // attach permission to each invite
+    const dataPromises = invites.map(async (invite) => {
+      const permissions = await findPermissions({ invite_id: invite.id });
+      return {
+        ...invite,
+        created_at: invite.created_at.toISOString(),
+        permissions: permissions.map((permission) => ({
+          ...permission,
+          created_at: permission.created_at.toISOString(),
+        })),
+      };
+    });
+
+    const data = await Promise.all(dataPromises);
+
     return {
-      data: invites,
+      data,
       page,
       per_page,
       total: invites.length,
     };
+  },
+);
+
+export const deleteInviteFn = createServerFn(
+  "POST",
+  async (payload: { id: number }) => {
+    const session = await useAppSession();
+
+    const invite = await findInviteById(payload.id);
+    if (invite?.inviter_id != session.data.id) {
+      return { success: false, message: "You are not the inviter" };
+    }
+
+    await deleteInvite(payload.id);
+    return { success: true, message: "Invite deleted successfully" };
   },
 );
 

@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Button } from "~/components/ui/Button";
 import { ComboBox, ComboBoxItem } from "~/components/ui/ComboBox";
@@ -21,13 +21,14 @@ export default function InviteUser() {
     },
   });
 
+  const queryClient = useQueryClient();
+
   // invite user Mutations
   const inviteUserMutation = useMutation({
     mutationFn: inviteUserFn,
     onSuccess: () => {
       // Invalidate and refetch
-      //
-      console.log("success");
+      queryClient.invalidateQueries();
     },
   });
 
@@ -50,6 +51,7 @@ export default function InviteUser() {
         onPress={() => {
           if (!selectedId) return;
           inviteUserMutation.mutate({ user_id: selectedId });
+          setSelectedId(null);
         }}
       >
         Invite
