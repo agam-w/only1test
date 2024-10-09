@@ -8,6 +8,8 @@ import {
 
 export interface Database {
   user: UserTable;
+  invite: InviteTable;
+  permission: PermissionTable;
 }
 
 // This interface describes the `user` table to Kysely. Table
@@ -40,3 +42,33 @@ export interface UserTable {
 export type User = Selectable<UserTable>;
 export type NewUser = Insertable<UserTable>;
 export type UserUpdate = Updateable<UserTable>;
+
+export interface InviteTable {
+  id: Generated<number>;
+  invitee_id: number;
+  inviter_id: number;
+  status: "pending" | "accepted" | "rejected";
+  created_at: ColumnType<Date, string | undefined, never>;
+}
+
+export type Invite = Selectable<InviteTable>;
+export type NewInvite = Insertable<InviteTable>;
+export type InviteUpdate = Updateable<InviteTable>;
+
+export interface PermissionTable {
+  id: Generated<number>;
+  invite_id: number;
+  user_id: number;
+  permission:
+    | "posts_read"
+    | "posts_write"
+    | "messages_read"
+    | "messages_write"
+    | "profile_read"
+    | "profile_write";
+  created_at: ColumnType<Date, string | undefined, never>;
+}
+
+export type Permission = Selectable<PermissionTable>;
+export type NewPermission = Insertable<PermissionTable>;
+export type PermissionUpdate = Updateable<PermissionTable>;

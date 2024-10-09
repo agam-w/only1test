@@ -1,4 +1,23 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/start";
+import { createInvite } from "~/repositories/invite";
+import { findUser } from "~/repositories/user";
+import { useAppSession } from "~/utils/session";
+
+export const inviteUserFn = createServerFn(
+  "POST",
+  async (payload: { user_id: number }) => {
+    const session = await useAppSession();
+
+    await createInvite({
+      invitee_id: payload.user_id,
+      inviter_id: session.data.id,
+      status: "pending",
+    });
+
+    return { success: true, message: "Invite sent successfully" };
+  },
+);
 
 export const Route = createFileRoute("/_app")({
   beforeLoad: async ({ context }) => {

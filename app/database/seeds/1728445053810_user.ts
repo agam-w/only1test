@@ -1,5 +1,5 @@
 import type { Kysely } from "kysely";
-import { createUser, findUser, findUsers } from "~/repositories/user";
+import { createUser, findUser } from "~/repositories/user";
 import { NewUser } from "../types";
 import { hashPassword } from "~/utils/hash";
 

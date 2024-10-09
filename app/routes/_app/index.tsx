@@ -79,6 +79,7 @@ function AppHome() {
                 {(item) => (
                   <Row
                     key={item.id}
+                    id={item.id}
                     columns={columns}
                     onAction={() => {
                       console.log("click", item);
