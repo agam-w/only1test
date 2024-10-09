@@ -17,6 +17,7 @@ import PermissionSwitches from "./PermissionSwitches";
 
 type InviteWithPermissions = NewInvite & {
   permissions: NewPermission[];
+  expanded: boolean;
 };
 
 type Column = {
@@ -46,7 +47,7 @@ export default function InviteGivenTable() {
   });
 
   const [expandedRows, setExpandedRows] = useState<{ [key: number]: boolean }>(
-    {},
+    {}
   );
 
   const toggleRow = (rowIndex: number) => {
@@ -90,7 +91,12 @@ export default function InviteGivenTable() {
   ];
 
   const rows = useMemo(() => {
-    return invites.data?.data as InviteWithPermissions[];
+    const dataInvites = invites.data?.data || [];
+    const dataRows: any[] = [];
+    dataInvites.map((item) =>
+      dataRows.push({ ...item, expanded: expandedRows[item.id!] })
+    );
+    return dataRows as InviteWithPermissions[];
   }, [invites, expandedRows]);
 
   return (
@@ -113,12 +119,11 @@ export default function InviteGivenTable() {
               columns={columns}
               onAction={() => {
                 toggleRow(item.id!);
-                console.log(item.id);
               }}
             >
               {(column) => (
                 <Cell>
-                  {!expandedRows[item.id!] ? (
+                  {!item.expanded ? (
                     <>
                       {column.render
                         ? column.render(item)
