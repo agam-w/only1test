@@ -37,6 +37,9 @@ export default function InviteUser() {
   const inviteUserMutation = useMutation({
     mutationFn: inviteUserFn,
     onSuccess: () => {
+      setSelectedId(null);
+      setSelectedUser(null);
+      setSelectedPermissions([]);
       // Invalidate and refetch
       queryClient.invalidateQueries();
     },
@@ -97,8 +100,6 @@ export default function InviteUser() {
                         user_id: selectedId,
                         permissions: selectedPermissions,
                       });
-                      setSelectedId(null);
-                      setSelectedUser(null);
                       close();
                     }}
                   >

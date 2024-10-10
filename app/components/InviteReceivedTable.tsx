@@ -6,8 +6,9 @@ import { Button } from "~/components/ui/Button";
 import { Cell, Column, Row, Table, TableHeader } from "~/components/ui/Table";
 import { NewInvite, NewPermission } from "~/database/types";
 import {
+  approvalInviteFn,
   deleteInviteFn,
-  getInvitesGivenFn,
+  getInvitesReceivedFn,
   syncInvitePermissionsFn,
 } from "~/routes/_app";
 import PermissionSwitches from "./PermissionSwitches";
@@ -28,21 +29,21 @@ type Col = {
   width?: number;
 };
 
-export default function InviteGivenTable() {
+export default function InviteReceivedTable() {
   const queryClient = useQueryClient();
 
-  const getInviteFn = useServerFn(getInvitesGivenFn);
+  const getInvitesFn = useServerFn(getInvitesReceivedFn);
 
   const invites = useQuery({
-    queryKey: ["invites-given"],
-    queryFn: () => getInviteFn({ page: 1, per_page: 10 }),
+    queryKey: ["invites-received"],
+    queryFn: () => getInvitesFn({ page: 1, per_page: 10 }),
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: deleteInviteFn,
+  const approvalMutation = useMutation({
+    mutationFn: approvalInviteFn,
     onSuccess: () => {
       // Invalidate and refetch
-      queryClient.invalidateQueries({ queryKey: ["invites-given"] });
+      queryClient.invalidateQueries({ queryKey: ["invites-received"] });
     },
   });
 
@@ -50,7 +51,7 @@ export default function InviteGivenTable() {
     mutationFn: syncInvitePermissionsFn,
     onSuccess: () => {
       // Invalidate and refetch
-      queryClient.invalidateQueries({ queryKey: ["invites-given"] });
+      queryClient.invalidateQueries({ queryKey: ["invites-received"] });
     },
   });
 
@@ -90,7 +91,7 @@ export default function InviteGivenTable() {
         <div>
           {item?.expanded ? (
             <PermissionSwitches
-              readOnly={item.status === "rejected"}
+              readOnly
               selectedKeys={item?.permissions.map((p) => p.permission) || []}
               onChange={(keys) => {
                 console.log(item.id, keys);
@@ -133,15 +134,31 @@ export default function InviteGivenTable() {
       id: "action",
       render: (item) => (
         <>
-          {item?.status === "pending" || item?.status === "accepted" ? (
-            <Button
-              variant="destructive"
-              onPress={() => {
-                deleteMutation.mutate({ id: item?.id! });
-              }}
-            >
-              Delete
-            </Button>
+          {item?.status === "pending" ? (
+            <div className="flex gap-2 items-center">
+              <Button
+                variant="primary"
+                onPress={() => {
+                  approvalMutation.mutate({
+                    id: item?.id!,
+                    status: "accepted",
+                  });
+                }}
+              >
+                Accept
+              </Button>
+              <Button
+                variant="destructive"
+                onPress={() => {
+                  approvalMutation.mutate({
+                    id: item?.id!,
+                    status: "rejected",
+                  });
+                }}
+              >
+                Reject
+              </Button>
+            </div>
           ) : null}
         </>
       ),
@@ -175,7 +192,7 @@ export default function InviteGivenTable() {
         renderEmptyState={() => (
           <div className="py-4">
             <p className="text-center text-sm text-gray-500">
-              No invites given found.
+              No invites received found.
             </p>
           </div>
         )}

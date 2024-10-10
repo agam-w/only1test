@@ -21,7 +21,13 @@ function findInviteQuery(criteria: Partial<Invite>) {
     query = query.where("id", "=", criteria.id); // Kysely is immutable, you must re-assign!
   }
 
-  // tobe defined
+  if (criteria.invitee_id) {
+    query = query.where("invitee_id", "=", criteria.invitee_id);
+  }
+
+  if (criteria.inviter_id) {
+    query = query.where("inviter_id", "=", criteria.inviter_id);
+  }
 
   return query;
 }
@@ -73,4 +79,13 @@ export async function createInvite(invite: NewInvite) {
 
 export async function deleteInvite(id: number) {
   return await db.deleteFrom(table).where("id", "=", id).execute();
+}
+
+export async function updateInvite(id: number, data: Partial<Invite>) {
+  return await db
+    .updateTable(table)
+    .set(data)
+    .where("id", "=", id)
+    .returningAll()
+    .executeTakeFirstOrThrow();
 }

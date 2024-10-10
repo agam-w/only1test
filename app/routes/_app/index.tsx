@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import InviteGivenTable from "~/components/InviteGivenTable";
+import InviteReceivedTable from "~/components/InviteReceivedTable";
 import InviteUser from "~/components/InviteUser";
 
 export const Route = createFileRoute("/_app/")({
@@ -24,7 +25,10 @@ function AppHome() {
             <InviteGivenTable />
           </div>
           <div>
-            <p className="text-lg font-bold">Invites Received</p>
+            <div className="flex flex-col gap-4">
+              <p className="text-lg font-bold">Invites Received</p>
+              <InviteReceivedTable />
+            </div>
           </div>
         </div>
       </div>

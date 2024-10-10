@@ -5,9 +5,11 @@ import { AvailablePermission, availablePermissions } from "~/utils/permission";
 export default function PermissionSwitches({
   selectedKeys,
   onChange,
+  readOnly,
 }: {
   selectedKeys?: AvailablePermission[];
   onChange?: (keys: AvailablePermission[]) => void;
+  readOnly?: boolean;
 }) {
   const [selectedKeysState, setSelectedKeysState] = useState<
     AvailablePermission[]
@@ -31,6 +33,7 @@ export default function PermissionSwitches({
         <Switch
           key={permission}
           defaultSelected={selectedKeys?.includes(permission)}
+          isReadOnly={readOnly}
           onChange={(checked) => handleChange(permission)}
         >
           {permission}

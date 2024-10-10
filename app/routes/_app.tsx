@@ -6,6 +6,7 @@ import {
   deleteInvite,
   findInviteById,
   findInvites,
+  updateInvite,
 } from "~/repositories/invite";
 import {
   createPermission,
@@ -53,9 +54,55 @@ export const getInvitesGivenFn = createServerFn(
     const limit = per_page;
     const offset = (page - 1) * per_page;
 
+    // find invites given by current user
     const invites = await findInvites(
       {
         inviter_id: currentUserId,
+      },
+      limit,
+      offset,
+    );
+
+    // attach permission to each invite
+    const dataPromises = invites.map(async (invite) => {
+      const permissions = await findPermissions({ invite_id: invite.id });
+      return {
+        ...invite,
+        created_at: invite.created_at.toISOString(),
+        permissions: permissions.map((permission) => ({
+          ...permission,
+          created_at: permission.created_at.toISOString(),
+        })),
+      };
+    });
+
+    const data = await Promise.all(dataPromises);
+
+    return {
+      data,
+      page,
+      per_page,
+      total: invites.length,
+    };
+  },
+);
+
+export const getInvitesReceivedFn = createServerFn(
+  "GET",
+  async (payload: { page: number; per_page: number }) => {
+    const session = await useAppSession();
+    const currentUserId = session.data.id;
+
+    const page = payload.page || 1;
+    const per_page = payload.per_page || 10;
+    // convert page and per_page to limit and offset
+    const limit = per_page;
+    const offset = (page - 1) * per_page;
+
+    // find invites received by current user
+    const invites = await findInvites(
+      {
+        invitee_id: currentUserId,
       },
       limit,
       offset,
@@ -98,6 +145,21 @@ export const deleteInviteFn = createServerFn(
     await deleteInvite(payload.id);
     await deleteAllPermissionsByInviteId(payload.id);
     return { success: true, message: "Invite deleted successfully" };
+  },
+);
+
+export const approvalInviteFn = createServerFn(
+  "POST",
+  async (payload: { id: number; status: "accepted" | "rejected" }) => {
+    const session = await useAppSession();
+
+    const invite = await findInviteById(payload.id);
+    if (invite?.invitee_id != session.data.id) {
+      return { success: false, message: "You are not the invitee" };
+    }
+
+    await updateInvite(payload.id, { status: payload.status });
+    return { success: true, message: `Invite ${payload.status} successfully` };
   },
 );
 
