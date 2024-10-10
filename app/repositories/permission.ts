@@ -46,10 +46,19 @@ export async function findPermissions(
   return await query.selectAll().execute();
 }
 
-export async function createPermission(invite: NewPermission) {
+export async function createPermission(
+  invite: NewPermission | NewPermission[],
+) {
   return await db
     .insertInto(table)
     .values(invite)
     .returningAll()
     .executeTakeFirstOrThrow();
+}
+
+export async function deleteAllPermissionsByInviteId(invite_id: number) {
+  return await db
+    .deleteFrom(table)
+    .where("invite_id", "=", invite_id)
+    .execute();
 }

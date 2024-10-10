@@ -1,12 +1,18 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/start";
+import { NewPermission } from "~/database/types";
 import {
   createInvite,
   deleteInvite,
   findInviteById,
   findInvites,
 } from "~/repositories/invite";
-import { findPermissions } from "~/repositories/permission";
+import {
+  createPermission,
+  deleteAllPermissionsByInviteId,
+  findPermissions,
+} from "~/repositories/permission";
+import { AvailablePermission } from "~/utils/permission";
 import { useAppSession } from "~/utils/session";
 
 export const inviteUserFn = createServerFn(
@@ -80,6 +86,38 @@ export const deleteInviteFn = createServerFn(
 
     await deleteInvite(payload.id);
     return { success: true, message: "Invite deleted successfully" };
+  },
+);
+
+// delete and attach new permissions to invite
+export const syncInvitePermissionsFn = createServerFn(
+  "POST",
+  async (payload: {
+    invite_id: number;
+    permissions: AvailablePermission[];
+  }) => {
+    const session = await useAppSession();
+
+    const invite = await findInviteById(payload.invite_id);
+    if (invite?.inviter_id != session.data.id) {
+      return { success: false, message: "You are not the inviter" };
+    }
+
+    // delete all old permissions for this invite
+    await deleteAllPermissionsByInviteId(payload.invite_id);
+
+    if (payload.permissions.length > 0) {
+      const newPermissions: NewPermission[] = payload.permissions.map(
+        (permission) => ({
+          invite_id: payload.invite_id,
+          user_id: invite.invitee_id,
+          permission,
+        }),
+      );
+      await createPermission(newPermissions);
+    }
+
+    return { success: true, message: "Invite permissions synced successfully" };
   },
 );
 

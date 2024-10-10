@@ -5,7 +5,11 @@ import { TableBody } from "react-aria-components";
 import { Button } from "~/components/ui/Button";
 import { Cell, Column, Row, Table, TableHeader } from "~/components/ui/Table";
 import { NewInvite, NewPermission } from "~/database/types";
-import { deleteInviteFn, getInvitesGivenFn } from "~/routes/_app";
+import {
+  deleteInviteFn,
+  getInvitesGivenFn,
+  syncInvitePermissionsFn,
+} from "~/routes/_app";
 import PermissionSwitches from "./PermissionSwitches";
 import { ChevronRightIcon } from "lucide-react";
 import classNames from "classnames";
@@ -36,6 +40,14 @@ export default function InviteGivenTable() {
 
   const deleteMutation = useMutation({
     mutationFn: deleteInviteFn,
+    onSuccess: () => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: ["invites-given"] });
+    },
+  });
+
+  const syncPermissionsMutation = useMutation({
+    mutationFn: syncInvitePermissionsFn,
     onSuccess: () => {
       // Invalidate and refetch
       queryClient.invalidateQueries({ queryKey: ["invites-given"] });
@@ -79,6 +91,13 @@ export default function InviteGivenTable() {
           {item?.expanded ? (
             <PermissionSwitches
               selectedKeys={item?.permissions.map((p) => p.permission) || []}
+              onChange={(keys) => {
+                console.log(item.id, keys);
+                syncPermissionsMutation.mutate({
+                  invite_id: item.id!,
+                  permissions: keys,
+                });
+              }}
             />
           ) : (
             <div>
