@@ -2,6 +2,7 @@ import { json } from "@tanstack/start";
 import { createAPIFileRoute } from "@tanstack/start/api";
 import queryString from "query-string";
 import { findUsers } from "~/repositories/user";
+import { useAppSession } from "~/utils/session";
 
 export const Route = createAPIFileRoute("/api/users")({
   GET: async ({ request }) => {
@@ -22,11 +23,15 @@ export const Route = createAPIFileRoute("/api/users")({
     // TODO: implement search with q params
     const users = await findUsers({}, limit, offset);
 
-    // omit password from response
-    const data = users.map((user) => ({
-      ...user,
-      password: undefined,
-    }));
+    const session = await useAppSession();
+
+    const data = users
+      .filter((user) => user.id != session.data.id)
+      .map((user) => ({
+        // omit password from response
+        ...user,
+        password: undefined,
+      }));
 
     return json({ data, page, per_page, total: users.length });
   },

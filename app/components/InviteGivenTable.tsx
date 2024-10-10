@@ -1,31 +1,27 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/start";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { TableBody } from "react-aria-components";
 import { Button } from "~/components/ui/Button";
-import {
-  Cell,
-  Column,
-  ExpandCell,
-  Row,
-  Table,
-  TableHeader,
-} from "~/components/ui/Table";
+import { Cell, Column, Row, Table, TableHeader } from "~/components/ui/Table";
 import { NewInvite, NewPermission } from "~/database/types";
 import { deleteInviteFn, getInvitesGivenFn } from "~/routes/_app";
 import PermissionSwitches from "./PermissionSwitches";
+import { ChevronRightIcon } from "lucide-react";
+import classNames from "classnames";
 
 type InviteWithPermissions = NewInvite & {
   permissions: NewPermission[];
   expanded: boolean;
 };
 
-type Column = {
+type Col = {
   name: string;
   id: string;
   isRowHeader?: boolean;
   key?: string;
   render?: (item?: InviteWithPermissions) => React.ReactNode;
+  width?: number;
 };
 
 export default function InviteGivenTable() {
@@ -47,7 +43,7 @@ export default function InviteGivenTable() {
   });
 
   const [expandedRows, setExpandedRows] = useState<{ [key: number]: boolean }>(
-    {}
+    {},
   );
 
   const toggleRow = (rowIndex: number) => {
@@ -57,20 +53,41 @@ export default function InviteGivenTable() {
     }));
   };
 
-  useEffect(() => {
-    console.log(expandedRows);
-  }, [expandedRows]);
-
-  const columns: Column[] = [
+  const columns: Col[] = [
+    {
+      name: "",
+      id: "expanded",
+      render: (item) => (
+        <div>
+          <ChevronRightIcon
+            size={16}
+            className={classNames("transition", {
+              "rotate-90": item?.expanded,
+            })}
+          />
+        </div>
+      ),
+      width: 50,
+    },
     { name: "Name", id: "name", isRowHeader: true, key: "invitee_name" },
     { name: "Date", id: "date", key: "created_at" },
     {
       name: "Permission",
       id: "permission",
       render: (item) => (
-        <PermissionSwitches
-          selectedKeys={item?.permissions.map((p) => p.permission) || []}
-        />
+        <div>
+          {item?.expanded ? (
+            <PermissionSwitches
+              selectedKeys={item?.permissions.map((p) => p.permission) || []}
+            />
+          ) : (
+            <div>
+              <p>
+                {(item?.permissions.map((p) => p.permission) || []).join(" ")}
+              </p>
+            </div>
+          )}
+        </div>
       ),
     },
     { name: "Status", id: "status", key: "status" },
@@ -94,7 +111,7 @@ export default function InviteGivenTable() {
     const dataInvites = invites.data?.data || [];
     const dataRows: any[] = [];
     dataInvites.map((item) =>
-      dataRows.push({ ...item, expanded: expandedRows[item.id!] })
+      dataRows.push({ ...item, expanded: expandedRows[item.id!] }),
     );
     return dataRows as InviteWithPermissions[];
   }, [invites, expandedRows]);
@@ -107,7 +124,9 @@ export default function InviteGivenTable() {
     >
       <TableHeader columns={columns}>
         {(column) => (
-          <Column isRowHeader={column.isRowHeader}>{column.name}</Column>
+          <Column isRowHeader={column.isRowHeader} width={column.width}>
+            {column.name}
+          </Column>
         )}
       </TableHeader>
       <TableBody items={rows}>
@@ -123,25 +142,11 @@ export default function InviteGivenTable() {
             >
               {(column) => (
                 <Cell>
-                  {!item.expanded ? (
-                    <>
-                      {column.render
-                        ? column.render(item)
-                        : column.key
-                          ? item[column.key]
-                          : ""}
-                    </>
-                  ) : (
-                    <div>
-                      'detail info'
-                      <br />
-                      'detail info'
-                      <br />
-                      'detail info'
-                      <br />
-                      'detail info'
-                    </div>
-                  )}
+                  {column.render
+                    ? column.render(item)
+                    : column.key
+                      ? item[column.key]
+                      : ""}
                 </Cell>
               )}
             </Row>

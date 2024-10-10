@@ -18,6 +18,7 @@
     "@tanstack/react-router": "^1.63.2",
     "@tanstack/start": "^1.63.3",
     "@vitejs/plugin-react": "^4.3.2",
+    "classnames": "^2.5.1",
     "dayjs": "^1.11.13",
     "kysely": "^0.27.4",
     "lucide-react": "^0.451.0",
