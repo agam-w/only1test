@@ -55,7 +55,6 @@ function TodoTable() {
 
       observer.current = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && hasNextPage && !isFetching) {
-          console.log("fetch next page");
           fetchNextPage();
         }
       });
