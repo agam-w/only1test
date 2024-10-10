@@ -22,12 +22,14 @@ export default function InviteUser() {
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounced(query, 300);
 
+  const [error, setError] = useState<string | null>(null);
+
   const fetchUsers = ({ q, page = 1 }: { q?: string; page?: number }) =>
     fetch(`/api/users?q=${q}&page=${page}&per_page=20`).then(
       async (res) => (await res.json()) as { data: User[] },
     );
 
-  const { isPending, isError, error, data } = useQuery({
+  const { data } = useQuery({
     queryKey: ["users", debouncedQuery],
     queryFn: () => fetchUsers({ q: debouncedQuery }),
     placeholderData: {
@@ -59,6 +61,10 @@ export default function InviteUser() {
       // Invalidate and refetch
       queryClient.invalidateQueries();
     },
+    onError: (err) => {
+      // console.log(err.message);
+      setError(err.message);
+    },
   });
 
   return (
@@ -88,7 +94,12 @@ export default function InviteUser() {
       </ComboBox>
 
       <DialogTrigger>
-        <Button isDisabled={selectedUser == null}>Invite</Button>
+        <Button
+          isDisabled={selectedUser == null}
+          onPress={() => setError(null)}
+        >
+          Invite
+        </Button>
         <Modal isKeyboardDismissDisabled>
           <Dialog>
             {({ close }) => (
@@ -117,11 +128,7 @@ export default function InviteUser() {
                   }}
                 />
 
-                {inviteUserMutation.isError ? (
-                  <p className="text-sm text-red-500">
-                    {inviteUserMutation.error.message}
-                  </p>
-                ) : null}
+                {error ? <p className="text-sm text-red-500">{error}</p> : null}
 
                 <div className="flex gap-2 justify-end">
                   <Button
