@@ -22,6 +22,7 @@ export default function InviteUser() {
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounced(query, 300);
 
+  const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchUsers = ({ q, page = 1 }: { q?: string; page?: number }) =>
@@ -60,6 +61,7 @@ export default function InviteUser() {
       setSelectedPermissions([]);
       // Invalidate and refetch
       queryClient.invalidateQueries();
+      setIsOpen(false);
     },
     onError: (err) => {
       // console.log(err.message);
@@ -96,11 +98,14 @@ export default function InviteUser() {
       <DialogTrigger>
         <Button
           isDisabled={selectedUser == null}
-          onPress={() => setError(null)}
+          onPress={() => {
+            setError(null);
+            setIsOpen(true);
+          }}
         >
           Invite
         </Button>
-        <Modal isKeyboardDismissDisabled>
+        <Modal isKeyboardDismissDisabled isOpen={isOpen}>
           <Dialog>
             {({ close }) => (
               <div className="flex flex-col gap-4">
@@ -138,12 +143,11 @@ export default function InviteUser() {
                         user_id: selectedId,
                         permissions: selectedPermissions,
                       });
-                      if (inviteUserMutation.isSuccess) close();
                     }}
                   >
                     Invite
                   </Button>
-                  <Button variant="secondary" onPress={close}>
+                  <Button variant="secondary" onPress={() => setIsOpen(false)}>
                     Cancel
                   </Button>
                 </div>
