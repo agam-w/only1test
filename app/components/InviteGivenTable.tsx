@@ -195,7 +195,7 @@ export default function InviteGivenTable() {
         return [...acc, ...page.data];
       }, [])
       .map((item) => ({ ...item, expanded: expandedRows[item.id!] }));
-  }, [data]);
+  }, [data, expandedRows]);
 
   return (
     <Table aria-label="Invites-Given">

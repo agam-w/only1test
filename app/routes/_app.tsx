@@ -9,10 +9,12 @@ import { createServerFn } from "@tanstack/start";
 import classNames from "classnames";
 import { Cat, ChevronRight, Menu, User, UserCircleIcon, X } from "lucide-react";
 import { useState } from "react";
+import { setResponseStatus } from "vinxi/http";
 import { NewPermission } from "~/database/types";
 import {
   createInvite,
   deleteInvite,
+  findInvite,
   findInviteById,
   findInvites,
   updateInvite,
@@ -29,6 +31,14 @@ export const inviteUserFn = createServerFn(
   "POST",
   async (payload: { user_id: number; permissions: AvailablePermission[] }) => {
     const session = await useAppSession();
+
+    const exist = await findInvite({ invitee_id: payload.user_id });
+    if (exist) {
+      return new Response("User already invited", {
+        status: 400,
+        statusText: "Bad Request",
+      });
+    }
 
     const invite = await createInvite({
       invitee_id: payload.user_id,

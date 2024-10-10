@@ -10,6 +10,7 @@ import { Dialog } from "./ui/Dialog";
 import PermissionSwitches from "./PermissionSwitches";
 import { AvailablePermission } from "~/utils/permission";
 import useDebounced from "~/hooks/useDebounced";
+import { useServerFn } from "@tanstack/start";
 
 export default function InviteUser() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -45,10 +46,13 @@ export default function InviteUser() {
 
   const queryClient = useQueryClient();
 
+  const inviteUser = useServerFn(inviteUserFn);
+
   // invite user Mutations
   const inviteUserMutation = useMutation({
-    mutationFn: inviteUserFn,
+    mutationFn: inviteUser,
     onSuccess: () => {
+      setQuery("");
       setSelectedId(null);
       setSelectedUser(null);
       setSelectedPermissions([]);
@@ -113,6 +117,12 @@ export default function InviteUser() {
                   }}
                 />
 
+                {inviteUserMutation.isError ? (
+                  <p className="text-sm text-red-500">
+                    {inviteUserMutation.error.message}
+                  </p>
+                ) : null}
+
                 <div className="flex gap-2 justify-end">
                   <Button
                     onPress={() => {
@@ -121,7 +131,7 @@ export default function InviteUser() {
                         user_id: selectedId,
                         permissions: selectedPermissions,
                       });
-                      close();
+                      if (inviteUserMutation.isSuccess) close();
                     }}
                   >
                     Invite
