@@ -1,6 +1,10 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/start";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { TableBody } from "react-aria-components";
 import { Button } from "~/components/ui/Button";
 import { Cell, Column, Row, Table, TableHeader } from "~/components/ui/Table";
@@ -33,10 +37,16 @@ export default function InviteGivenTable() {
 
   const getInviteFn = useServerFn(getInvitesGivenFn);
 
-  const invites = useQuery({
-    queryKey: ["invites-given"],
-    queryFn: () => getInviteFn({ page: 1, per_page: 10 }),
-  });
+  const { data, error, fetchNextPage, hasNextPage, isFetching, isLoading } =
+    useInfiniteQuery({
+      queryKey: ["invites-given"],
+      queryFn: ({ pageParam }) =>
+        getInviteFn({ page: pageParam, per_page: 20 }),
+      initialPageParam: 1,
+      getNextPageParam: (lastPage, allPages) => {
+        return lastPage.data.length ? allPages.length + 1 : undefined;
+      },
+    });
 
   const deleteMutation = useMutation({
     mutationFn: deleteInviteFn,
@@ -54,6 +64,7 @@ export default function InviteGivenTable() {
     },
   });
 
+  // expanding row function
   const [expandedRows, setExpandedRows] = useState<{ [key: number]: boolean }>(
     {},
   );
@@ -64,6 +75,27 @@ export default function InviteGivenTable() {
       [rowIndex]: !prev[rowIndex],
     }));
   };
+
+  // observer
+  const observer = useRef<IntersectionObserver>();
+
+  // callback, if the last element is visible
+  const lastElementRef = useCallback(
+    (node: HTMLTableRowElement) => {
+      if (isLoading) return;
+
+      if (observer.current) observer.current.disconnect();
+
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetching) {
+          fetchNextPage();
+        }
+      });
+
+      if (node) observer.current.observe(node);
+    },
+    [fetchNextPage, hasNextPage, isFetching, isLoading],
+  );
 
   const columns: Col[] = [
     {
@@ -148,21 +180,25 @@ export default function InviteGivenTable() {
     },
   ];
 
+  // const rows = useMemo(() => {
+  //   const dataInvites = invites.data?.data || [];
+  //   const dataRows: any[] = [];
+  //   dataInvites.map((item) =>
+  //     dataRows.push({ ...item, expanded: expandedRows[item.id!] }),
+  //   );
+  //   return dataRows as InviteWithPermissions[];
+  // }, [invites, expandedRows]);
+
   const rows = useMemo(() => {
-    const dataInvites = invites.data?.data || [];
-    const dataRows: any[] = [];
-    dataInvites.map((item) =>
-      dataRows.push({ ...item, expanded: expandedRows[item.id!] }),
-    );
-    return dataRows as InviteWithPermissions[];
-  }, [invites, expandedRows]);
+    return data?.pages
+      .reduce((acc, page) => {
+        return [...acc, ...page.data];
+      }, [])
+      .map((item) => ({ ...item, expanded: expandedRows[item.id!] }));
+  }, [data]);
 
   return (
-    <Table
-      aria-label="Invites-Given"
-      // selectionMode="multiple"
-      // selectionBehavior="replace"
-    >
+    <Table aria-label="Invites-Given">
       <TableHeader columns={columns}>
         {(column) => (
           <Column isRowHeader={column.isRowHeader} width={column.width}>
@@ -183,6 +219,7 @@ export default function InviteGivenTable() {
         {(item) => {
           return (
             <Row
+              ref={lastElementRef}
               key={item.id}
               id={item.id}
               columns={columns}
