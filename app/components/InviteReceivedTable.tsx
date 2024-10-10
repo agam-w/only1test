@@ -125,7 +125,7 @@ export default function InviteReceivedTable() {
               readOnly
               selectedKeys={item?.permissions.map((p) => p.permission) || []}
               onChange={(keys) => {
-                console.log(item.id, keys);
+                // console.log(item.id, keys);
                 syncPermissionsMutation.mutate({
                   invite_id: item.id!,
                   permissions: keys,

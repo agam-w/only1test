@@ -17,11 +17,28 @@ export default function PermissionSwitches({
 
   const handleChange = (key: AvailablePermission) => {
     if (selectedKeysState.includes(key)) {
+      // remove key from list
       const newKeys = selectedKeysState.filter((k) => k !== key);
       setSelectedKeysState(newKeys);
       onChange?.(newKeys);
     } else {
-      const newKeys = [...selectedKeysState, key];
+      // add key to list
+      // console.log("add key:", key);
+
+      // when write permission is selected, also select the read permission
+      const pairKey: AvailablePermission | null =
+        key === "posts_write"
+          ? "posts_read"
+          : key === "messages_write"
+            ? "messages_read"
+            : key === "profile_write"
+              ? "profile_read"
+              : null;
+      // console.log("pair:", pairKey);
+
+      const newKeys = [...selectedKeysState, key, pairKey].filter(
+        (k) => k !== null,
+      );
       setSelectedKeysState(newKeys);
       onChange?.(newKeys);
     }
@@ -33,6 +50,7 @@ export default function PermissionSwitches({
         <Switch
           key={permission}
           defaultSelected={selectedKeys?.includes(permission)}
+          isSelected={selectedKeysState.includes(permission)}
           isReadOnly={readOnly}
           onChange={(checked) => handleChange(permission)}
         >
