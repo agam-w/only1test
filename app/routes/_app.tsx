@@ -85,6 +85,7 @@ export const deleteInviteFn = createServerFn(
     }
 
     await deleteInvite(payload.id);
+    await deleteAllPermissionsByInviteId(payload.id);
     return { success: true, message: "Invite deleted successfully" };
   },
 );

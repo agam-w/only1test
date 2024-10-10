@@ -18,7 +18,9 @@ function findPermissionQuery(criteria: Partial<Permission>) {
     query = query.where("id", "=", criteria.id); // Kysely is immutable, you must re-assign!
   }
 
-  // tobe defined
+  if (criteria.invite_id) {
+    query = query.where("invite_id", "=", criteria.invite_id);
+  }
 
   return query;
 }

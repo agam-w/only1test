@@ -102,7 +102,9 @@ export default function InviteGivenTable() {
           ) : (
             <div>
               <p>
-                {(item?.permissions.map((p) => p.permission) || []).join(" ")}
+                {item?.permissions && item.permissions.length > 0
+                  ? (item?.permissions.map((p) => p.permission) || []).join(" ")
+                  : "-"}
               </p>
             </div>
           )}
