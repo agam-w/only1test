@@ -116,12 +116,15 @@ export function Row<T extends object>({
   id,
   columns,
   children,
+  ref,
   ...otherProps
-}: RowProps<T>) {
+}: RowProps<T> & {
+  ref?: React.Ref<HTMLTableRowElement>;
+}) {
   let { selectionBehavior, allowsDragging } = useTableOptions();
 
   return (
-    <AriaRow id={id} {...otherProps} className={rowStyles}>
+    <AriaRow id={id} {...otherProps} className={rowStyles} ref={ref}>
       {allowsDragging && (
         <Cell>
           <Button slot="drag">≡</Button>

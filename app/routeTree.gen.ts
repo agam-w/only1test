@@ -15,6 +15,7 @@ import { Route as LogoutImport } from './routes/logout'
 import { Route as LoginImport } from './routes/login'
 import { Route as AppImport } from './routes/_app'
 import { Route as AppIndexImport } from './routes/_app/index'
+import { Route as AppTodoImport } from './routes/_app/todo'
 import { Route as AppReceivedImport } from './routes/_app/received'
 
 // Create/Update Routes
@@ -36,6 +37,11 @@ const AppRoute = AppImport.update({
 
 const AppIndexRoute = AppIndexImport.update({
   path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppTodoRoute = AppTodoImport.update({
+  path: '/todo',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -76,6 +82,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppReceivedImport
       parentRoute: typeof AppImport
     }
+    '/_app/todo': {
+      id: '/_app/todo'
+      path: '/todo'
+      fullPath: '/todo'
+      preLoaderRoute: typeof AppTodoImport
+      parentRoute: typeof AppImport
+    }
     '/_app/': {
       id: '/_app/'
       path: '/'
@@ -90,11 +103,13 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppReceivedRoute: typeof AppReceivedRoute
+  AppTodoRoute: typeof AppTodoRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppReceivedRoute: AppReceivedRoute,
+  AppTodoRoute: AppTodoRoute,
   AppIndexRoute: AppIndexRoute,
 }
 
@@ -105,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
   '/received': typeof AppReceivedRoute
+  '/todo': typeof AppTodoRoute
   '/': typeof AppIndexRoute
 }
 
@@ -112,6 +128,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
   '/received': typeof AppReceivedRoute
+  '/todo': typeof AppTodoRoute
   '/': typeof AppIndexRoute
 }
 
@@ -121,15 +138,23 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
   '/_app/received': typeof AppReceivedRoute
+  '/_app/todo': typeof AppTodoRoute
   '/_app/': typeof AppIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '' | '/login' | '/logout' | '/received' | '/'
+  fullPaths: '' | '/login' | '/logout' | '/received' | '/todo' | '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/logout' | '/received' | '/'
-  id: '__root__' | '/_app' | '/login' | '/logout' | '/_app/received' | '/_app/'
+  to: '/login' | '/logout' | '/received' | '/todo' | '/'
+  id:
+    | '__root__'
+    | '/_app'
+    | '/login'
+    | '/logout'
+    | '/_app/received'
+    | '/_app/todo'
+    | '/_app/'
   fileRoutesById: FileRoutesById
 }
 
@@ -166,6 +191,7 @@ export const routeTree = rootRoute
       "filePath": "_app.tsx",
       "children": [
         "/_app/received",
+        "/_app/todo",
         "/_app/"
       ]
     },
@@ -177,6 +203,10 @@ export const routeTree = rootRoute
     },
     "/_app/received": {
       "filePath": "_app/received.tsx",
+      "parent": "/_app"
+    },
+    "/_app/todo": {
+      "filePath": "_app/todo.tsx",
       "parent": "/_app"
     },
     "/_app/": {
