@@ -29,6 +29,7 @@ export const loginFn = createServerFn(
     await session.update({
       id: user.id,
       username: user.username,
+      name: user.name || "",
       email: user.email,
     });
 

@@ -1,5 +1,14 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  Outlet,
+  redirect,
+  useLocation,
+} from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/start";
+import classNames from "classnames";
+import { Cat, ChevronRight, Menu, User, UserCircleIcon, X } from "lucide-react";
+import { useState } from "react";
 import { NewPermission } from "~/database/types";
 import {
   createInvite,
@@ -208,27 +217,112 @@ export const Route = createFileRoute("/_app")({
 
 function App() {
   const { user } = Route.useRouteContext();
+  const location = useLocation();
+
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const navLinks = [
+    { name: "Invites Given", path: "/" },
+    { name: "Invites Received", path: "/received" },
+  ];
 
   return (
     <div>
-      <div className="bg-gray-200">
-        <div className="container flex justify-between items-center py-2 px-4">
-          <div>
-            <a href="/" className="font-medium">
-              Home
-            </a>
-          </div>
+      <div className="shadow h-14">
+        <div className="container flex justify-between items-center px-4 h-14">
+          <nav className="hidden md:flex gap-4">
+            {navLinks.map((link) => (
+              <Link
+                key={link.path}
+                to={link.path}
+                className={classNames(
+                  "font-medium border-b-2 hover:text-black hover:border-b-indigo-500 flex items-center justify-center py-4 transition",
+                  {
+                    "border-b-indigo-500 text-black":
+                      link.path === location.pathname,
+                    "text-gray-500": link.path !== location.pathname,
+                  },
+                )}
+              >
+                {link.name}
+              </Link>
+            ))}
+          </nav>
 
-          <div className="flex gap-2">
-            <div>
-              <p>{user?.username}</p>
+          <button
+            className="md:hidden flex items-center justify-center text-gray-700"
+            onClick={() => setIsMenuOpen(true)}
+          >
+            <Menu />
+          </button>
+
+          <div className="flex gap-2 items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-indigo-500 text-white flex items-center justify-center">
+              <User className="w-6 h-6" />
             </div>
-            <a href="/logout" className="font-medium">
+            <div>
+              <p>{user?.name}</p>
+            </div>
+            <Link
+              to="/logout"
+              className="hidden md:block font-medium text-gray-500 hover:text-black transition"
+            >
               Logout
-            </a>
+            </Link>
           </div>
         </div>
       </div>
+
+      {/* mobile menu drawer */}
+      <div
+        className={classNames(
+          "fixed shadow z-50 top-0 bottom-0 left-0 right-0 w-screen h-screen md:hidden bg-white transition duration-300 border-r border-r-gray-100",
+          {
+            "translate-x-0": isMenuOpen,
+            "-translate-x-full": !isMenuOpen,
+          },
+        )}
+      >
+        <div className="container flex justify-end items-center px-4 h-14">
+          <button
+            className="md:hidden flex items-center justify-center text-gray-700"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            <X />
+          </button>
+        </div>
+
+        <nav className="flex flex-col gap-2">
+          {navLinks.map((link) => (
+            <Link
+              key={link.path}
+              to={link.path}
+              className={classNames(
+                "font-medium hover:text-black flex items-center px-4 py-2 transition",
+                {
+                  "text-black": link.path === location.pathname,
+                  "text-gray-500": link.path !== location.pathname,
+                },
+              )}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <p>{link.name}</p>
+            </Link>
+          ))}
+
+          <Link
+            to="/logout"
+            className={classNames(
+              "font-medium hover:text-black flex items-center px-4 py-2 transition",
+              "text-gray-500",
+            )}
+            onClick={() => setIsMenuOpen(false)}
+          >
+            <p>Logout</p>
+          </Link>
+        </nav>
+      </div>
+
       <Outlet />
     </div>
   );

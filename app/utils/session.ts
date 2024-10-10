@@ -3,6 +3,7 @@ import { useSession } from "vinxi/http";
 type SessionUser = {
   id: number;
   username: string;
+  name: string;
   email: string;
 };
 

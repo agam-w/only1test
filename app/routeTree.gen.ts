@@ -15,7 +15,7 @@ import { Route as LogoutImport } from './routes/logout'
 import { Route as LoginImport } from './routes/login'
 import { Route as AppImport } from './routes/_app'
 import { Route as AppIndexImport } from './routes/_app/index'
-import { Route as AppTableImport } from './routes/_app/table'
+import { Route as AppReceivedImport } from './routes/_app/received'
 
 // Create/Update Routes
 
@@ -39,8 +39,8 @@ const AppIndexRoute = AppIndexImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 
-const AppTableRoute = AppTableImport.update({
-  path: '/table',
+const AppReceivedRoute = AppReceivedImport.update({
+  path: '/received',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -69,11 +69,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LogoutImport
       parentRoute: typeof rootRoute
     }
-    '/_app/table': {
-      id: '/_app/table'
-      path: '/table'
-      fullPath: '/table'
-      preLoaderRoute: typeof AppTableImport
+    '/_app/received': {
+      id: '/_app/received'
+      path: '/received'
+      fullPath: '/received'
+      preLoaderRoute: typeof AppReceivedImport
       parentRoute: typeof AppImport
     }
     '/_app/': {
@@ -89,12 +89,12 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface AppRouteChildren {
-  AppTableRoute: typeof AppTableRoute
+  AppReceivedRoute: typeof AppReceivedRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
-  AppTableRoute: AppTableRoute,
+  AppReceivedRoute: AppReceivedRoute,
   AppIndexRoute: AppIndexRoute,
 }
 
@@ -104,14 +104,14 @@ export interface FileRoutesByFullPath {
   '': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
-  '/table': typeof AppTableRoute
+  '/received': typeof AppReceivedRoute
   '/': typeof AppIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
-  '/table': typeof AppTableRoute
+  '/received': typeof AppReceivedRoute
   '/': typeof AppIndexRoute
 }
 
@@ -120,16 +120,16 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
-  '/_app/table': typeof AppTableRoute
+  '/_app/received': typeof AppReceivedRoute
   '/_app/': typeof AppIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '' | '/login' | '/logout' | '/table' | '/'
+  fullPaths: '' | '/login' | '/logout' | '/received' | '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/logout' | '/table' | '/'
-  id: '__root__' | '/_app' | '/login' | '/logout' | '/_app/table' | '/_app/'
+  to: '/login' | '/logout' | '/received' | '/'
+  id: '__root__' | '/_app' | '/login' | '/logout' | '/_app/received' | '/_app/'
   fileRoutesById: FileRoutesById
 }
 
@@ -165,7 +165,7 @@ export const routeTree = rootRoute
     "/_app": {
       "filePath": "_app.tsx",
       "children": [
-        "/_app/table",
+        "/_app/received",
         "/_app/"
       ]
     },
@@ -175,8 +175,8 @@ export const routeTree = rootRoute
     "/logout": {
       "filePath": "logout.tsx"
     },
-    "/_app/table": {
-      "filePath": "_app/table.tsx",
+    "/_app/received": {
+      "filePath": "_app/received.tsx",
       "parent": "/_app"
     },
     "/_app/": {

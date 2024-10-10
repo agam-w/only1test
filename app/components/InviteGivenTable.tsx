@@ -79,7 +79,7 @@ export default function InviteGivenTable() {
           />
         </div>
       ),
-      width: 50,
+      width: 20,
     },
     { name: "Name", id: "name", isRowHeader: true, key: "invitee_name" },
     { name: "Date", id: "date", key: "created_at" },

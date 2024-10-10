@@ -24,6 +24,7 @@ const fetchUser = createServerFn("GET", async () => {
   return {
     id: session.data.id,
     username: session.data.username,
+    name: session.data.name,
     email: session.data.email,
   };
 });
@@ -38,7 +39,7 @@ export const Route = createRootRoute({
       content: "width=device-width, initial-scale=1",
     },
     {
-      title: "TanStack Start Starter",
+      title: "App",
     },
   ],
   links: () => [
