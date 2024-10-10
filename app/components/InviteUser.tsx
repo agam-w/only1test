@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { DialogTrigger, Heading } from "react-aria-components";
 import { Button } from "~/components/ui/Button";
 import { ComboBox, ComboBoxItem } from "~/components/ui/ComboBox";
@@ -19,22 +19,29 @@ export default function InviteUser() {
   >([]);
 
   const [query, setQuery] = useState("");
-  const debouncedQuery = useDebounced(query, 500);
-  const [page, setPage] = useState(1);
+  const debouncedQuery = useDebounced(query, 300);
 
   const fetchUsers = ({ q, page = 1 }: { q?: string; page?: number }) =>
-    fetch(`/api/users?q=${q}&page=${page}&per_page=20`).then((res) =>
-      res.json(),
+    fetch(`/api/users?q=${q}&page=${page}&per_page=20`).then(
+      async (res) => (await res.json()) as { data: User[] },
     );
 
   const { isPending, isError, error, data } = useQuery({
-    queryKey: ["users", debouncedQuery, page],
-    queryFn: () => fetchUsers({ q: debouncedQuery, page }),
+    queryKey: ["users", debouncedQuery],
+    queryFn: () => fetchUsers({ q: debouncedQuery }),
     placeholderData: {
       data: [],
-      isPlaceholderData: true,
     },
   });
+
+  const options = useMemo(() => {
+    return (
+      data?.data.map((item) => ({
+        id: item.id,
+        name: item.name,
+      })) || []
+    );
+  }, [data]);
 
   const queryClient = useQueryClient();
 
@@ -55,19 +62,25 @@ export default function InviteUser() {
       <ComboBox
         label="Invite User"
         selectedKey={selectedId}
+        items={options}
+        inputValue={query}
         onInputChange={(val) => {
           setQuery(val);
         }}
         onSelectionChange={(val) => {
           setSelectedId(Number(val));
-          setSelectedUser(data.data.find((user: User) => user.id == val));
+          const user = data?.data.find((user: User) => user.id == val);
+          if (user) {
+            setSelectedUser(user);
+            setQuery(user.name!);
+          }
         }}
       >
-        {data.data.map((item: User) => (
+        {(item) => (
           <ComboBoxItem key={item.id} id={item.id}>
             {item.name}
           </ComboBoxItem>
-        ))}
+        )}
       </ComboBox>
 
       <DialogTrigger>

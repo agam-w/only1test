@@ -1,5 +1,5 @@
 import { ChevronDown } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 import {
   ComboBox as AriaComboBox,
   ComboBoxProps as AriaComboBoxProps,
@@ -29,6 +29,8 @@ export function ComboBox<T extends object>({
   items,
   ...props
 }: ComboBoxProps<T>) {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
     <AriaComboBox
       {...props}
@@ -39,14 +41,25 @@ export function ComboBox<T extends object>({
     >
       <Label>{label}</Label>
       <FieldGroup>
-        <Input onChange={(e) => props.onInputChange?.(e.target.value)} />
-        <Button variant="icon" className="w-6 mr-1 rounded outline-offset-0 ">
+        <Input
+          onChange={(e) => props.onInputChange?.(e.target.value)}
+          // onFocus={() => setIsOpen(true)}
+          // onBlur={() => setIsOpen(false)}
+        />
+        <Button
+          variant="icon"
+          className="w-6 mr-1 rounded outline-offset-0 "
+          // onPress={() => setIsOpen(!isOpen)}
+        >
           <ChevronDown aria-hidden className="w-4 h-4" />
         </Button>
       </FieldGroup>
       {description && <Description>{description}</Description>}
       <FieldError>{errorMessage}</FieldError>
-      <Popover className="w-[--trigger-width]">
+      <Popover
+        className="w-[--trigger-width]"
+        // isOpen={isOpen}
+      >
         <ListBox
           items={items}
           className="outline-0 p-1 max-h-[inherit] overflow-auto [clip-path:inset(0_0_0_0_round_.75rem)]"

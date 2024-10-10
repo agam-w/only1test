@@ -31,7 +31,8 @@ function findUserQuery(criteria: Partial<User & { q: string }>) {
   }
 
   if (criteria.q) {
-    query = query.where("name", "ilike", `%${criteria.q}%`);
+    const q = criteria.q.toLowerCase();
+    query = query.where("name", "ilike", `%${q}%`);
   }
 
   return query;
