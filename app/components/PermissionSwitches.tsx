@@ -6,11 +6,12 @@ export default function PermissionSwitches({
   selectedKeys,
   onChange,
 }: {
-  selectedKeys: AvailablePermission[];
+  selectedKeys?: AvailablePermission[];
   onChange?: (keys: AvailablePermission[]) => void;
 }) {
-  const [selectedKeysState, setSelectedKeysState] =
-    useState<AvailablePermission[]>(selectedKeys);
+  const [selectedKeysState, setSelectedKeysState] = useState<
+    AvailablePermission[]
+  >(selectedKeys || []);
 
   const handleChange = (key: AvailablePermission) => {
     if (selectedKeysState.includes(key)) {
@@ -29,7 +30,7 @@ export default function PermissionSwitches({
       {availablePermissions.map((permission) => (
         <Switch
           key={permission}
-          defaultSelected={selectedKeys.includes(permission)}
+          defaultSelected={selectedKeys?.includes(permission)}
           onChange={(checked) => handleChange(permission)}
         >
           {permission}

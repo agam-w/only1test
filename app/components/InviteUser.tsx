@@ -1,12 +1,22 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { DialogTrigger, Heading } from "react-aria-components";
 import { Button } from "~/components/ui/Button";
 import { ComboBox, ComboBoxItem } from "~/components/ui/ComboBox";
 import { User } from "~/database/types";
 import { inviteUserFn } from "~/routes/_app";
+import { Modal } from "./ui/Modal";
+import { Dialog } from "./ui/Dialog";
+import PermissionSwitches from "./PermissionSwitches";
+import { AvailablePermission } from "~/utils/permission";
 
 export default function InviteUser() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedPermissions, setSelectedPermissions] = useState<
+    AvailablePermission[]
+  >([]);
+
   const [page, setPage] = useState(1);
 
   const fetchUsers = (page = 1) =>
@@ -39,6 +49,7 @@ export default function InviteUser() {
         selectedKey={selectedId}
         onSelectionChange={(val) => {
           setSelectedId(Number(val));
+          setSelectedUser(data.data.find((user: User) => user.id == val));
         }}
       >
         {data.data.map((item: User) => (
@@ -47,15 +58,61 @@ export default function InviteUser() {
           </ComboBoxItem>
         ))}
       </ComboBox>
-      <Button
-        onPress={() => {
-          if (!selectedId) return;
-          inviteUserMutation.mutate({ user_id: selectedId });
-          setSelectedId(null);
-        }}
-      >
-        Invite
-      </Button>
+
+      <DialogTrigger>
+        <Button isDisabled={selectedUser == null}>Invite</Button>
+        <Modal isKeyboardDismissDisabled>
+          <Dialog>
+            {({ close }) => (
+              <div className="flex flex-col gap-4">
+                <h1 className="text-xl font-bold">Invite User</h1>
+
+                <p>You are inviting:</p>
+                <div className="flex gap-4 text-sm">
+                  <div className="flex flex-col gap-1">
+                    <div className="font-medium">Name</div>
+                    <div className="font-medium">Username</div>
+                    <div className="font-medium">Email</div>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <div>{selectedUser?.name}</div>
+                    <div>{selectedUser?.username}</div>
+                    <div>{selectedUser?.email}</div>
+                  </div>
+                </div>
+
+                <p className="font-medium">Permissions</p>
+
+                <PermissionSwitches
+                  onChange={(keys) => {
+                    setSelectedPermissions(keys);
+                  }}
+                />
+
+                <div className="flex gap-2 justify-end">
+                  <Button
+                    onPress={() => {
+                      if (!selectedId) return;
+                      inviteUserMutation.mutate({
+                        user_id: selectedId,
+                        permissions: selectedPermissions,
+                      });
+                      setSelectedId(null);
+                      setSelectedUser(null);
+                      close();
+                    }}
+                  >
+                    Invite
+                  </Button>
+                  <Button variant="secondary" onPress={close}>
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
+          </Dialog>
+        </Modal>
+      </DialogTrigger>
     </div>
   );
 }

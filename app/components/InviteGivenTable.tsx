@@ -150,7 +150,16 @@ export default function InviteGivenTable() {
           </Column>
         )}
       </TableHeader>
-      <TableBody items={rows}>
+      <TableBody
+        items={rows}
+        renderEmptyState={() => (
+          <div className="py-4">
+            <p className="text-center text-sm text-gray-500">
+              No invites given found.
+            </p>
+          </div>
+        )}
+      >
         {(item) => {
           return (
             <Row

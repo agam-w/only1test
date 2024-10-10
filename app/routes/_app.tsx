@@ -17,14 +17,25 @@ import { useAppSession } from "~/utils/session";
 
 export const inviteUserFn = createServerFn(
   "POST",
-  async (payload: { user_id: number }) => {
+  async (payload: { user_id: number; permissions: AvailablePermission[] }) => {
     const session = await useAppSession();
 
-    await createInvite({
+    const invite = await createInvite({
       invitee_id: payload.user_id,
       inviter_id: session.data.id,
       status: "pending",
     });
+
+    if (payload.permissions.length > 0) {
+      const newPermissions: NewPermission[] = payload.permissions.map(
+        (permission) => ({
+          invite_id: invite.id,
+          user_id: payload.user_id,
+          permission,
+        }),
+      );
+      await createPermission(newPermissions);
+    }
 
     return { success: true, message: "Invite sent successfully" };
   },
