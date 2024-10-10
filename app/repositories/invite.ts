@@ -11,7 +11,9 @@ export async function findInviteById(id: number) {
     .executeTakeFirst();
 }
 
-function findInviteQuery(criteria: Partial<Invite>) {
+function findInviteQuery(
+  criteria: Partial<Invite & { inviter_verified: boolean }>,
+) {
   let query = db
     .selectFrom(table)
     .innerJoin("user as invitee", "invitee.id", "invite.invitee_id")
@@ -29,16 +31,22 @@ function findInviteQuery(criteria: Partial<Invite>) {
     query = query.where("inviter_id", "=", criteria.inviter_id);
   }
 
+  if (criteria.inviter_verified) {
+    query = query.where("inviter.verified", "=", criteria.inviter_verified);
+  }
+
   return query;
 }
 
-export async function findInvite(criteria: Partial<Invite>) {
+export async function findInvite(
+  criteria: Partial<Invite & { inviter_verified: boolean }>,
+) {
   let query = findInviteQuery(criteria);
   return await query.selectAll().executeTakeFirst();
 }
 
 export async function findInvites(
-  criteria: Partial<Invite>,
+  criteria: Partial<Invite & { inviter_verified: boolean }>,
   limit?: number,
   offset?: number,
 ) {

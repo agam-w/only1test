@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "~/components/ui/Button";
 import { Form } from "~/components/ui/Form";
 import { TextField } from "~/components/ui/TextField";
+import { findInvite } from "~/repositories/invite";
 import { findUser } from "~/repositories/user";
 import { verifyPassword } from "~/utils/hash";
 import { useAppSession } from "~/utils/session";
@@ -20,6 +21,19 @@ export const loginFn = createServerFn(
     // Check if the password is correct
     if (!verifyPassword(payload.password, user.password)) {
       return { success: false, message: "Invalid password" };
+    }
+
+    // user invited by verified user
+    const invitedExists = await findInvite({
+      invitee_id: user.id,
+      inviter_verified: true,
+    });
+
+    const invited = invitedExists != null;
+
+    // check if user not verified but invited
+    if (!user.verified && !invited) {
+      return { success: false, message: "You are not verified" };
     }
 
     // Create a session
