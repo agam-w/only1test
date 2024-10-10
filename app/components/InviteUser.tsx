@@ -9,6 +9,7 @@ import { Modal } from "./ui/Modal";
 import { Dialog } from "./ui/Dialog";
 import PermissionSwitches from "./PermissionSwitches";
 import { AvailablePermission } from "~/utils/permission";
+import useDebounced from "~/hooks/useDebounced";
 
 export default function InviteUser() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -17,14 +18,18 @@ export default function InviteUser() {
     AvailablePermission[]
   >([]);
 
+  const [query, setQuery] = useState("");
+  const debouncedQuery = useDebounced(query, 500);
   const [page, setPage] = useState(1);
 
-  const fetchUsers = (page = 1) =>
-    fetch("/api/users?page=" + page).then((res) => res.json());
+  const fetchUsers = ({ q, page = 1 }: { q?: string; page?: number }) =>
+    fetch(`/api/users?q=${q}&page=${page}&per_page=20`).then((res) =>
+      res.json(),
+    );
 
   const { isPending, isError, error, data } = useQuery({
-    queryKey: ["users", page],
-    queryFn: () => fetchUsers(page),
+    queryKey: ["users", debouncedQuery, page],
+    queryFn: () => fetchUsers({ q: debouncedQuery, page }),
     placeholderData: {
       data: [],
       isPlaceholderData: true,
@@ -50,6 +55,9 @@ export default function InviteUser() {
       <ComboBox
         label="Invite User"
         selectedKey={selectedId}
+        onInputChange={(val) => {
+          setQuery(val);
+        }}
         onSelectionChange={(val) => {
           setSelectedId(Number(val));
           setSelectedUser(data.data.find((user: User) => user.id == val));

@@ -11,7 +11,7 @@ export async function findUserById(id: number) {
     .executeTakeFirst();
 }
 
-function findUserQuery(criteria: Partial<User>) {
+function findUserQuery(criteria: Partial<User & { q: string }>) {
   let query = db.selectFrom(table);
 
   if (criteria.id) {
@@ -30,6 +30,10 @@ function findUserQuery(criteria: Partial<User>) {
     query = query.where("verified", "=", criteria.verified);
   }
 
+  if (criteria.q) {
+    query = query.where("name", "ilike", `%${criteria.q}%`);
+  }
+
   return query;
 }
 
@@ -39,7 +43,7 @@ export async function findUser(criteria: Partial<User>) {
 }
 
 export async function findUsers(
-  criteria: Partial<User>,
+  criteria: Partial<User & { q: string }>,
   limit?: number,
   offset?: number,
 ) {

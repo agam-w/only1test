@@ -8,9 +8,9 @@ export const Route = createAPIFileRoute("/api/users")({
   GET: async ({ request }) => {
     const url = new URL(request.url);
     const params = queryString.parse(url.searchParams.toString()) as {
-      page: string;
-      per_page: string;
-      q: string;
+      page?: string;
+      per_page?: string;
+      q?: string;
     };
 
     const page = Number(params.page) || 1;
@@ -20,8 +20,7 @@ export const Route = createAPIFileRoute("/api/users")({
     const limit = per_page;
     const offset = (page - 1) * per_page;
 
-    // TODO: implement search with q params
-    const users = await findUsers({}, limit, offset);
+    const users = await findUsers({ q: params.q }, limit, offset);
 
     const session = await useAppSession();
 
